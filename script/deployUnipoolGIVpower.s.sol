@@ -12,29 +12,32 @@ contract deployUnipoolGIVpower is Script {
 
     UnipoolGIVpower implementation;
     UnipoolGIVpower givPower;
-    ProxyAdmin unipoolGIVpowerProxyAdmin;
+    // ProxyAdmin unipoolGIVpowerProxyAdmin;
     TransparentUpgradeableProxy unipoolGIVpowerProxy;
     IERC20Upgradeable givToken;
     IDistro iDistro;
 
     // token
     // address givTokenAddressOptimismGoerli = 0xc916Ce4025Cb479d9BA9D798A80094a449667F5D;
-    address givTokenAddressOptimismMainnet = 0x528CDc92eAB044E1E39FE43B9514bfdAB4412B98;
-    address tokenDistroOptimismMainnet = 0xE3Ac7b3e6B4065f4765d76fDC215606483BF3bD1;
-    address tokenDistroOptimismGoerli = 0x8D2cBce8ea0256bFFBa6fa4bf7CEC46a1d9b43f6;
+    address givTokenAddressOptimismSepolia = 0x2f2c819210191750F2E11F7CfC5664a0eB4fd5e6;
+    // address tokenDistroOptimismMainnet = 0xE3Ac7b3e6B4065f4765d76fDC215606483BF3bD1;
+    address tokenDistroOptimismSepolia = 0x301C739CF6bfb6B47A74878BdEB13f92F13Ae5E7;
+    ProxyAdmin unipoolGIVpowerProxyAdmin = ProxyAdmin(address(0x3b197F5cDa3516bD49e193df6F1273f3f16d414a));
 
     function run() external {
         uint256 deployerPrivateKey = vm.envUint('PRIVATE_KEY');
 
         vm.startBroadcast(deployerPrivateKey);
-        // givToken = IERC20Upgradeable(givTokenAddressOptimismMainnet);
-        // iDistro = IDistro(tokenDistroOptimismMainnet);
+        givToken = IERC20Upgradeable(givTokenAddressOptimismSepolia);
+        iDistro = IDistro(tokenDistroOptimismSepolia);
         // unipoolGIVpowerProxyAdmin = new ProxyAdmin();
         // new implementation
         implementation = new UnipoolGIVpower();
-        // unipoolGIVpowerProxy =
-        // new TransparentUpgradeableProxy(payable(address(implementation)), address(unipoolGIVpowerProxyAdmin),
-        //  abi.encodeWithSelector(UnipoolGIVpower(givPower).initialize.selector, iDistro, givToken, 14 days));
+        unipoolGIVpowerProxy = new TransparentUpgradeableProxy(
+            payable(address(implementation)),
+            address(unipoolGIVpowerProxyAdmin),
+            abi.encodeWithSelector(UnipoolGIVpower(givPower).initialize.selector, iDistro, givToken, 14 days)
+        );
         // givPower = UnipoolGIVpower(address(unipoolGIVpowerProxy));
 
         // console.log('unipoolproxyadmin' , address(unipoolGIVpowerProxyAdmin));
