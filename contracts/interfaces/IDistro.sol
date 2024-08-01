@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0
 
-pragma solidity =0.8.10;
+pragma solidity ^0.8.10;
 
 interface IDistro {
     /**
@@ -71,6 +71,8 @@ interface IDistro {
 
     function sendGIVbacks(address[] memory recipients, uint256[] memory amounts) external;
 
+    function sendPraiseRewards(address[] memory recipients, uint256[] memory amounts) external;
+
     /**
      * Function that allows a recipient to change its address
      * @dev The change can only be made to an address that has not previously received an allocation &
@@ -98,5 +100,5 @@ interface IDistro {
      */
     function claimableNow(address recipient) external view returns (uint256);
 
-    function cancelAllocation(address prevRecipient, address newRecipient) external;
+    function transferAllocation(address prevRecipient, address newRecipient) external;
 }

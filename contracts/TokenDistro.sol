@@ -42,6 +42,11 @@ contract TokenDistro is Initializable, IDistro, AccessControlEnumerableUpgradeab
     event GivBackPaid(address distributor);
 
     /**
+     * @dev Emitted when the DISTRIBUTOR allocate an amount of praise rewards to a recipient
+     */
+    event PraiseRewardPaid(address distributor);
+
+    /**
      * @dev Emitted when the duration is changed
      */
     event DurationChanged(uint256 newDuration);
@@ -166,7 +171,6 @@ contract TokenDistro is Initializable, IDistro, AccessControlEnumerableUpgradeab
      */
     function _allocate(address recipient, uint256 amount, bool claim) internal {
         require(!hasRole(DISTRIBUTOR_ROLE, recipient), 'TokenDistro::allocate: DISTRIBUTOR_NOT_VALID_RECIPIENT');
-
         balances[msg.sender].allocatedTokens = balances[msg.sender].allocatedTokens - amount;
 
         balances[recipient].allocatedTokens = balances[recipient].allocatedTokens + amount;
@@ -191,9 +195,10 @@ contract TokenDistro is Initializable, IDistro, AccessControlEnumerableUpgradeab
      * Unlike allocate method it doesn't claim recipients available balance
      */
     function _allocateMany(address[] memory recipients, uint256[] memory amounts) internal onlyDistributor {
-        require(recipients.length == amounts.length, 'TokenDistro::allocateMany: INPUT_LENGTH_NOT_MATCH');
+        uint256 length = recipients.length;
+        require(length == amounts.length, 'TokenDistro::allocateMany: INPUT_LENGTH_NOT_MATCH');
 
-        for (uint256 i = 0; i < recipients.length; i++) {
+        for (uint256 i = 0; i < length; i++) {
             _allocate(recipients[i], amounts[i], false);
         }
     }
@@ -207,6 +212,11 @@ contract TokenDistro is Initializable, IDistro, AccessControlEnumerableUpgradeab
         emit GivBackPaid(msg.sender);
     }
 
+    function sendPraiseRewards(address[] memory recipients, uint256[] memory amounts) external override {
+        _allocateMany(recipients, amounts);
+        emit PraiseRewardPaid(msg.sender);
+    }
+
     /**
      * Function that allows a recipient to change its address
      * @dev The change can only be made to an address that has not previously received an allocation &
@@ -216,23 +226,7 @@ contract TokenDistro is Initializable, IDistro, AccessControlEnumerableUpgradeab
      *
      */
     function changeAddress(address newAddress) external override {
-        require(
-            balances[newAddress].allocatedTokens == 0 && balances[newAddress].claimed == 0,
-            'TokenDistro::changeAddress: ADDRESS_ALREADY_IN_USE'
-        );
-
-        require(
-            !hasRole(DISTRIBUTOR_ROLE, msg.sender) && !hasRole(DISTRIBUTOR_ROLE, newAddress),
-            'TokenDistro::changeAddress: DISTRIBUTOR_ROLE_NOT_A_VALID_ADDRESS'
-        );
-
-        balances[newAddress].allocatedTokens = balances[msg.sender].allocatedTokens;
-        balances[msg.sender].allocatedTokens = 0;
-
-        balances[newAddress].claimed = balances[msg.sender].claimed;
-        balances[msg.sender].claimed = 0;
-
-        emit ChangeAddress(msg.sender, newAddress);
+        _transferAllocation(msg.sender, newAddress);
     }
 
     /**
@@ -284,29 +278,13 @@ contract TokenDistro is Initializable, IDistro, AccessControlEnumerableUpgradeab
      *
      * Emits a {ChangeAddress} event.
      *
+     * Formerly called cancelAllocation, this is an admin only function and should only be called manually
      */
-    function cancelAllocation(address prevRecipient, address newRecipient) external override {
-        require(cancelable, 'TokenDistro::cancelAllocation: NOT_CANCELABLE');
+    function transferAllocation(address prevRecipient, address newRecipient) external override {
+        require(cancelable, 'TokenDistro::transferAllocation: NOT_CANCELABLE');
 
-        require(hasRole(DEFAULT_ADMIN_ROLE, msg.sender), 'TokenDistro::cancelAllocation: ONLY_ADMIN_ROLE');
-
-        require(
-            balances[newRecipient].allocatedTokens == 0 && balances[newRecipient].claimed == 0,
-            'TokenDistro::cancelAllocation: ADDRESS_ALREADY_IN_USE'
-        );
-
-        require(
-            !hasRole(DISTRIBUTOR_ROLE, prevRecipient) && !hasRole(DISTRIBUTOR_ROLE, newRecipient),
-            'TokenDistro::cancelAllocation: DISTRIBUTOR_ROLE_NOT_A_VALID_ADDRESS'
-        );
-
-        balances[newRecipient].allocatedTokens = balances[prevRecipient].allocatedTokens;
-        balances[prevRecipient].allocatedTokens = 0;
-
-        balances[newRecipient].claimed = balances[prevRecipient].claimed;
-        balances[prevRecipient].claimed = 0;
-
-        emit ChangeAddress(prevRecipient, newRecipient);
+        require(hasRole(DEFAULT_ADMIN_ROLE, msg.sender), 'TokenDistro::transferAllocation: ONLY_ADMIN_ROLE');
+        _transferAllocation(prevRecipient, newRecipient);
     }
 
     /**
@@ -338,5 +316,24 @@ contract TokenDistro is Initializable, IDistro, AccessControlEnumerableUpgradeab
         duration = newDuration;
 
         emit DurationChanged(newDuration);
+    }
+
+    function _transferAllocation(address prevRecipient, address newRecipient) internal {
+        require(
+            balances[prevRecipient].allocatedTokens > 0, 'TokenDistro::transferAllocation: NO_ALLOCATION_TO_TRANSFER'
+        );
+        require(
+            !hasRole(DISTRIBUTOR_ROLE, prevRecipient) && !hasRole(DISTRIBUTOR_ROLE, newRecipient),
+            'TokenDistro::transferAllocation: DISTRIBUTOR_ROLE_NOT_A_VALID_ADDRESS'
+        );
+        // balance adds instead of overwrites
+        balances[newRecipient].allocatedTokens =
+            balances[prevRecipient].allocatedTokens + balances[newRecipient].allocatedTokens;
+        balances[prevRecipient].allocatedTokens = 0;
+
+        balances[newRecipient].claimed = balances[prevRecipient].claimed + balances[newRecipient].claimed;
+        balances[prevRecipient].claimed = 0;
+
+        emit ChangeAddress(prevRecipient, newRecipient);
     }
 }

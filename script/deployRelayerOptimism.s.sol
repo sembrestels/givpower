@@ -44,7 +44,7 @@ contract deployRelayer is Script {
         tokenDistro.grantRole(keccak256('DISTRIBUTOR_ROLE'), address(givbacksRelayer));
         tokenDistro.assign(address(givbacksRelayer), 2500000 ether);
         tokenDistro.revokeRole(keccak256('DISTRIBUTOR_ROLE'), address(batcherApp));
-        tokenDistro.cancelAllocation(address(batcherApp), 0x0000000000000000000000000000000000000000);
+        tokenDistro.transferAllocation(address(batcherApp), 0x0000000000000000000000000000000000000000);
 
         console.log('proxy admin', address(givbacksRelayerProxyAdmin));
         console.log('givbacks relayer', address(givbacksRelayer));
