@@ -15,7 +15,7 @@ contract GIVpowerTest is Test {
     uint256 public constant MAX_GIV_BALANCE = 10 ** 28; // 10 Billion, Total minted giv is 1B at the moment
 
     ProxyAdmin gardenUnipoolProxyAdmin;
-    TransparentUpgradeableProxy gardenUnipoolProxy;
+    ITransparentUpgradeableProxy gardenUnipoolProxy;
     GIVpower implementation;
     GIVpower givPower;
     ITokenManager tokenManager;
@@ -55,7 +55,7 @@ contract GIVpowerTest is Test {
         uint256 forkId = vm.createFork('https://rpc.ankr.com/gnosis', 22501098); //https://xdai-archive.blockscout.com/
         vm.selectFork(forkId);
         gardenUnipoolProxyAdmin = ProxyAdmin(address(0x076C250700D210e6cf8A27D1EB1Fd754FB487986));
-        gardenUnipoolProxy = TransparentUpgradeableProxy(payable(0xD93d3bDBa18ebcB3317a57119ea44ed2Cf41C2F2));
+        gardenUnipoolProxy = ITransparentUpgradeableProxy(payable(0xD93d3bDBa18ebcB3317a57119ea44ed2Cf41C2F2));
 
         // wrap in ABI to support easier calls
         givPower = GIVpower(address(gardenUnipoolProxy));

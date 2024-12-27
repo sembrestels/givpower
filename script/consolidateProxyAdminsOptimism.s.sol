@@ -14,8 +14,8 @@ contract deployRelayer is Script {
     ProxyAdmin masterProxyAdmin;
     ProxyAdmin givpowerProxyAdmin;
     ProxyAdmin givbacksRelayerProxyAdmin;
-    TransparentUpgradeableProxy givbacksRelayerProxy;
-    TransparentUpgradeableProxy givpowerProxy;
+    ITransparentUpgradeableProxy givbacksRelayerProxy;
+    ITransparentUpgradeableProxy givpowerProxy;
     // token distro address
 
     function run() external {
@@ -25,10 +25,10 @@ contract deployRelayer is Script {
         ProxyAdmin masterProxyAdmin = ProxyAdmin(0x2f2c819210191750F2E11F7CfC5664a0eB4fd5e6);
         ProxyAdmin givpowerProxyAdmin = ProxyAdmin(0x383C34c04cA46A322454Ff483EA8Ccc16bC34434);
         ProxyAdmin givbacksRelayerProxyAdmin = ProxyAdmin(0x9194B6CcdBD27bD3738772eFFf3DD571A9bACbBd);
-        TransparentUpgradeableProxy givpowerProxy =
-            TransparentUpgradeableProxy(payable(0x301C739CF6bfb6B47A74878BdEB13f92F13Ae5E7));
-        TransparentUpgradeableProxy givbacksRelayerProxy =
-            TransparentUpgradeableProxy(payable(0xf13e93aF5e706AB3073E393e77bb2d7ce7BEc01f));
+        ITransparentUpgradeableProxy givpowerProxy =
+            ITransparentUpgradeableProxy(payable(0x301C739CF6bfb6B47A74878BdEB13f92F13Ae5E7));
+        ITransparentUpgradeableProxy givbacksRelayerProxy =
+            ITransparentUpgradeableProxy(payable(0xf13e93aF5e706AB3073E393e77bb2d7ce7BEc01f));
 
         givpowerProxyAdmin.changeProxyAdmin(givpowerProxy, address(masterProxyAdmin));
         givbacksRelayerProxyAdmin.changeProxyAdmin(givbacksRelayerProxy, address(masterProxyAdmin));

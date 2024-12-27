@@ -9,13 +9,13 @@ import 'contracts/GIVpower.sol';
 
 contract UpgradeGardenUnipool is Script {
     ProxyAdmin gardenUnipoolProxyAdmin;
-    TransparentUpgradeableProxy gardenUnipool;
+    ITransparentUpgradeableProxy gardenUnipool;
     GIVpower implementation;
 
     function run() public {
         gardenUnipoolProxyAdmin = ProxyAdmin(address(0x076C250700D210e6cf8A27D1EB1Fd754FB487986));
 
-        gardenUnipool = TransparentUpgradeableProxy(payable(0xD93d3bDBa18ebcB3317a57119ea44ed2Cf41C2F2));
+        gardenUnipool = ITransparentUpgradeableProxy(payable(0xD93d3bDBa18ebcB3317a57119ea44ed2Cf41C2F2));
 
         // new implementation
         implementation = new GIVpower();
