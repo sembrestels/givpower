@@ -187,7 +187,7 @@ contract GardenUnipoolTokenDistributor is LPTokenWrapper, TokenManagerHook, Owna
         (uint256 allocatedTokens,) = abi.decode(data, (uint256, uint256));
 
         require(allocatedTokens >= _reward, 'UnipoolTokenDistributor: NOT_ENOUGH_TOKEND_ISTRO_BALANCE');
-        
+
         rewardRate = _reward.div(duration);
         lastUpdateTime = _timestamp;
         periodFinish = _timestamp.add(duration);

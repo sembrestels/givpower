@@ -16,7 +16,6 @@ contract UnipoolNotifyReward is UnipoolGIVpowerTest {
         vm.startPrank(givethMultisig);
         tokenDistro.grantRole(tokenDistro.DISTRIBUTOR_ROLE(), address(givPower));
         vm.stopPrank();
-
     }
 
     function testInBudgetNotifyReward() public {
