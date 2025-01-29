@@ -40,7 +40,7 @@ contract UnipoolNotifyReward is UnipoolGIVpowerTest {
         vm.stopPrank();
 
         vm.startPrank(rewardDistributor);
-        vm.expectRevert('UnipoolTokenDistributor: NOT_ENOUGH_TOKEND_ISTRO_BALANCE');
+        vm.expectRevert('UnipoolTokenDistributor: NOT_ENOUGH_TOKEN_DISTRO_BALANCE');
         givPower.notifyRewardAmount(_rewardBudget + 1);
         vm.stopPrank();
     }
@@ -69,7 +69,7 @@ contract UnipoolNotifyReward is UnipoolGIVpowerTest {
 
         vm.startPrank(rewardDistributor);
         givPower.notifyRewardAmount(_rewardBudget / 2);
-        vm.expectRevert('UnipoolTokenDistributor: NOT_ENOUGH_TOKEND_ISTRO_BALANCE');
+        vm.expectRevert('UnipoolTokenDistributor: NOT_ENOUGH_TOKEN_DISTRO_BALANCE');
         givPower.notifyRewardAmount((_rewardBudget / 2) + 1 ether);
         vm.stopPrank();
     }

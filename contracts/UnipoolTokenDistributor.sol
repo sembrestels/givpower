@@ -187,7 +187,7 @@ contract UnipoolTokenDistributor is LPTokenWrapper, OwnableUpgradeable {
         require(success, 'UnipoolTokenDistributor: CALL_FAILED');
         (uint256 allocatedTokens,) = abi.decode(data, (uint256, uint256));
 
-        require(allocatedTokens >= _reward, 'UnipoolTokenDistributor: NOT_ENOUGH_TOKEND_ISTRO_BALANCE');
+        require(allocatedTokens >= _reward, 'UnipoolTokenDistributor: NOT_ENOUGH_TOKEN_DISTRO_BALANCE');
 
         rewardRate = _reward.div(duration);
         lastUpdateTime = _timestamp;
