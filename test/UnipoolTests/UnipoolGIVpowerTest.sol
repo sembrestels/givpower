@@ -23,8 +23,10 @@ contract UnipoolGIVpowerTest is Test {
     IERC20Upgradeable givToken;
     IL2StandardERC20 bridgedGivToken;
     IERC20 gGivToken;
-    address givethMultisig;
-    IDistro iDistro;
+    address givethMultisig = 0x4D9339dd97db55e3B9bCBE65dE39fF9c04d1C2cd;
+    IDistro iDistro = IDistro(0xE3Ac7b3e6B4065f4765d76fDC215606483BF3bD1);
+    ProxyAdmin masterProxyAdmin = ProxyAdmin(0x2f2c819210191750F2E11F7CfC5664a0eB4fd5e6);
+    address rewardDistributor = address(uint160(1));
 
     // token
     address givTokenAddressOptimism = 0x528CDc92eAB044E1E39FE43B9514bfdAB4412B98;
@@ -62,8 +64,7 @@ contract UnipoolGIVpowerTest is Test {
     event DepositTokenWithdrawn(address indexed account, uint256 amount);
 
     constructor() {
-        uint256 forkId =
-            vm.createFork('https://opt-mainnet.g.alchemy.com/v2/0WACYnGuFHam6HpS-PcYPZqwSPFHmnjk', 105235052);
+        uint256 forkId = vm.createFork('https://mainnet.optimism.io');
         vm.selectFork(forkId);
         // wrap in ABI to support easier calls
     }
@@ -71,16 +72,15 @@ contract UnipoolGIVpowerTest is Test {
     function setUp() public virtual {
         givToken = IERC20Upgradeable(givTokenAddressOptimism);
         bridgedGivToken = IL2StandardERC20(givTokenAddressOptimism);
-        unipoolGIVpowerProxyAdmin = new ProxyAdmin();
-        givethMultisig = unipoolGIVpowerProxyAdmin.owner();
         // new implementation
         implementation = new UnipoolGIVpower();
         unipoolGIVpowerProxy = new TransparentUpgradeableProxy(
             payable(address(implementation)),
-            address(unipoolGIVpowerProxyAdmin),
+            address(masterProxyAdmin),
             abi.encodeWithSelector(UnipoolGIVpower(givPower).initialize.selector, iDistro, givToken, 14 days)
         );
         givPower = UnipoolGIVpower(address(unipoolGIVpowerProxy));
+        givPower.setRewardDistribution(rewardDistributor);
 
         // mint
         vm.prank(optimismL2Bridge);
