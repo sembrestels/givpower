@@ -10,7 +10,7 @@ import './hardcode-upgrade/interfaces/IDistro.sol';
 
 contract UpgradeGardenUnipool is Script {
     ProxyAdmin unipoolProxyAdmin;
-    ITransparentUpgradeableProxy unipoolProxy;
+    TransparentUpgradeableProxy unipoolProxy;
     UnipoolGIVpower implementation;
     UnipoolGIVpower givpower;
     IDistro iDistro;
@@ -18,7 +18,7 @@ contract UpgradeGardenUnipool is Script {
     function run() public {
         unipoolProxyAdmin = ProxyAdmin(address(0x91c5C402B0B514f2D09d84b03b6C9f17Bd689e2D));
         iDistro = IDistro(address(0x8D2cBce8ea0256bFFBa6fa4bf7CEC46a1d9b43f6));
-        unipoolProxy = ITransparentUpgradeableProxy(payable(0x632AC305ed88817480d12155A7F1244cC182C298));
+        unipoolProxy = TransparentUpgradeableProxy(payable(0x632AC305ed88817480d12155A7F1244cC182C298));
         givpower = UnipoolGIVpower(address(unipoolProxy));
         // new implementation
 

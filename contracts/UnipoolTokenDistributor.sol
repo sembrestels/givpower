@@ -173,13 +173,23 @@ contract UnipoolTokenDistributor is LPTokenWrapper, OwnableUpgradeable {
 
     function notifyRewardAmount(uint256 reward) external onlyRewardDistribution updateReward(address(0)) {
         uint256 _timestamp = getTimestamp();
+        uint256 _reward;
         if (_timestamp >= periodFinish) {
-            rewardRate = reward.div(duration);
+            _reward = reward;
         } else {
             uint256 remaining = periodFinish.sub(_timestamp);
             uint256 leftover = remaining.mul(rewardRate);
-            rewardRate = reward.add(leftover).div(duration);
+            _reward = reward.add(leftover);
         }
+
+        (bool success, bytes memory data) =
+            address(tokenDistro).call(abi.encodeWithSignature('balances(address)', address(this)));
+        require(success, 'UnipoolTokenDistributor: CALL_FAILED');
+        (uint256 allocatedTokens,) = abi.decode(data, (uint256, uint256));
+
+        require(allocatedTokens >= _reward, 'UnipoolTokenDistributor: NOT_ENOUGH_TOKEN_DISTRO_BALANCE');
+
+        rewardRate = _reward.div(duration);
         lastUpdateTime = _timestamp;
         periodFinish = _timestamp.add(duration);
         emit RewardAdded(reward);
